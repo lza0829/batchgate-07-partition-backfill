@@ -14,6 +14,11 @@ async function load() {
     rows.value = await getJSON(`/api/attempts${q}`)
   } catch (e) { err.value = String(e.message || e) }
 }
+function orchLabel(o) {
+  return o.mode === 'backfill'
+    ? `#${o.id} · ${o.status} · 回补 ${o.partition}`
+    : `#${o.id} · ${o.status} · 正常`
+}
 onMounted(async () => {
   try {
     orchList.value = await getJSON('/api/orchestrations')
@@ -27,25 +32,33 @@ watch(orchId, load)
 <template>
   <div class="page">
     <h1>尝试记录</h1>
-    <p class="muted">每次作业尝试的状态：success / failed / skipped_dep。</p>
+    <p class="muted">每次作业尝试的状态：success / failed / skipped_dep；详情里带 mode 与 partition。</p>
     <p v-if="err" class="tag danger">{{ err }}</p>
     <div class="panel">
       <label>
         编排
         <select v-model.number="orchId">
           <option :value="null">全部</option>
-          <option v-for="o in orchList" :key="o.id" :value="o.id">#{{ o.id }} · {{ o.status }}</option>
+          <option v-for="o in orchList" :key="o.id" :value="o.id">{{ orchLabel(o) }}</option>
         </select>
       </label>
       <span class="muted" style="margin-left:0.75rem">共 {{ rows.length }} 条</span>
     </div>
     <div class="panel">
       <table>
-        <thead><tr><th>ID</th><th>编排</th><th>作业</th><th>次</th><th>状态</th><th>详情</th></tr></thead>
+        <thead>
+          <tr><th>ID</th><th>编排</th><th>模式</th><th>分区</th><th>作业</th><th>次</th><th>状态</th><th>详情</th></tr>
+        </thead>
         <tbody>
           <tr v-for="a in rows" :key="a.id">
             <td>{{ a.id }}</td>
             <td>{{ a.orchestration_id }}</td>
+            <td>
+              <span class="tag" :class="a.detail?.mode==='backfill' ? 'warn' : 'ok'">
+                {{ a.detail?.mode || 'normal' }}
+              </span>
+            </td>
+            <td class="mono">{{ a.detail?.partition || '—' }}</td>
             <td class="mono">{{ a.job_name }}</td>
             <td>{{ a.attempt_no }}</td>
             <td><span class="tag" :class="a.status==='success'?'ok':(a.status==='failed'?'danger':'warn')">{{ a.status }}</span></td>

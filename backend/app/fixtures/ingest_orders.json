@@ -4,5 +4,20 @@
     {"order_id": "O-1", "customer_id": "C-1", "amount": 120.5},
     {"order_id": "O-2", "customer_id": "C-2", "amount": 88.0},
     {"order_id": "O-3", "customer_id": "C-1", "amount": 15.0}
-  ]
+  ],
+  "partition_data": {
+    "2026-11-08": {
+      "watermark_ts": "2026-11-08T18:00:00Z",
+      "rows": [
+        {"order_id": "O-101", "customer_id": "C-1", "amount": 60.0},
+        {"order_id": "O-102", "customer_id": "C-2", "amount": 40.0}
+      ]
+    },
+    "2026-11-09": {
+      "watermark_ts": "2026-11-09T18:00:00Z",
+      "rows": [
+        {"order_id": "O-201", "customer_id": "C-1", "amount": 77.7}
+      ]
+    }
+  }
 }

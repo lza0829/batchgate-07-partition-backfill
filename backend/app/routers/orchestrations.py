@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.db import connect
 from app.repositories import orchestrations as orch_repo
+from app.schemas.entities import OrchestrationBody
 from app.services.orchestrate_service import run_orchestration
 
 router = APIRouter(tags=["orchestrations"])
@@ -29,5 +30,6 @@ def get_orchestration(orch_id: int):
 
 
 @router.post("/orchestrations")
-def create_orchestration():
-    return run_orchestration()
+def create_orchestration(body: OrchestrationBody | None = None):
+    partition = body.partition if body is not None else None
+    return run_orchestration(partition=partition)

@@ -3,5 +3,20 @@
   "rows": [
     {"customer_id": "C-1", "name": "Ada"},
     {"customer_id": "C-2", "name": "Ben"}
-  ]
+  ],
+  "partition_data": {
+    "2026-11-08": {
+      "watermark_ts": "2026-11-08T17:30:00Z",
+      "rows": [
+        {"customer_id": "C-1", "name": "Ada"}
+      ]
+    },
+    "2026-11-09": {
+      "watermark_ts": "2026-11-09T17:30:00Z",
+      "rows": [
+        {"customer_id": "C-1", "name": "Ada"},
+        {"customer_id": "C-2", "name": "Ben"}
+      ]
+    }
+  }
 }

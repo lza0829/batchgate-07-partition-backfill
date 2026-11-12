@@ -15,7 +15,8 @@ onMounted(async () => {
     <div class="panel" v-if="stats">
       <p>作业 {{ stats.job_count }}（启用 {{ stats.enabled_jobs }}）</p>
       <p>编排 {{ stats.orchestration_count }} · 尝试 {{ stats.attempt_count }}</p>
-      <p>已有水位的作业 {{ stats.watermarked_jobs }}</p>
+      <p>已有主水位的作业 {{ stats.watermarked_jobs }}</p>
+      <p>分区水位记录 {{ stats.partition_watermark_rows }}（回补产出，与主水位分轨）</p>
     </div>
   </div>
 </template>

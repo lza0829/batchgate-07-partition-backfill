@@ -40,8 +40,25 @@ def init_db():
             artifact_rows INTEGER NOT NULL DEFAULT 0,
             updated_at TEXT
         );
+        CREATE TABLE IF NOT EXISTS partition_watermarks(
+            job_id INTEGER NOT NULL,
+            partition TEXT NOT NULL,
+            watermark_ts TEXT,
+            artifact_rows INTEGER NOT NULL DEFAULT 0,
+            updated_at TEXT,
+            PRIMARY KEY (job_id, partition)
+        );
         """
     )
+    # 轻量迁移：旧库的 orchestrations 没有模式/分区列
+    existing_cols = {
+        r["name"] for r in conn.execute("PRAGMA table_info(orchestrations)").fetchall()
+    }
+    if "mode" not in existing_cols:
+        conn.execute("ALTER TABLE orchestrations ADD COLUMN mode TEXT NOT NULL DEFAULT 'normal'")
+    if "partition" not in existing_cols:
+        conn.execute("ALTER TABLE orchestrations ADD COLUMN partition TEXT")
+
     if conn.execute("SELECT COUNT(*) c FROM jobs").fetchone()["c"] == 0:
         jobs = [
             (

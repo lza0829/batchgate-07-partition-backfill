@@ -19,6 +19,18 @@ docker compose up --build
 
 配置作业与依赖 → 触发一次编排 Run → 按依赖顺序执行夹具作业 → 写入尝试记录与产出水位 → 报告对账
 
+## 编排模式：正常 vs 分区回补
+
+| 模式 | 触发方式 | 产出写入 | 主水位 |
+| --- | --- | --- | --- |
+| 正常 `normal` | `POST /api/orchestrations`（无 partition） | `watermarks`（每作业一行主水位） | 推进 |
+| 回补 `backfill` | `POST /api/orchestrations`，body 带 `{"partition":"2026-11-08"}` | `partition_watermarks`（按 作业×分区 记录） | **不动** |
+
+- 回补只消费夹具 `partition_data` 中对应业务日的数据；夹具没有该分区时该作业记 `failed`，下游按依赖闸记 `skipped_dep`。
+- 编排记录与尝试详情都带 `mode` / `partition`；报告的 succeeded/failed/skipped 直接由尝试记录汇总，两者必然一致。
+- 主水位 `GET /api/watermarks` 与分区水位 `GET /api/partition-watermarks?partition=...` 分表分开查；刷新/重启后分区结果持久保留。
+- 前端「编排台」可发起带分区的回补，「产出水位」页上下两块分别展示主水位与分区水位。
+
 ## 种子说明
 
 - **ingest_orders**：无依赖，写出订单水位。
